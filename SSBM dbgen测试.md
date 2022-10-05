@@ -6,6 +6,7 @@
   - [生成分布式大宽表](#生成分布式大宽表)
 - [并发测试](#并发测试)
   - [benchmark并发测试](#benchmark并发测试)
+- [zookeeper中的信息](#zookeeper中的信息)
 # 工具、数据文件准备
 ```sh
 #下载代码：
@@ -645,6 +646,34 @@ ORDER BY
 ./clickhouse benchmark --host=host --port=9000 --user=xxxx --password=xxxx --database=ssb --concurrency=10 --iterations=10 < test-ck.sql
 ./clickhouse benchmark --host=host --port=9000 --user=xxx --password=xxx--database=ssb --concurrency=100 --iterations=100 < test-ck.sql
 ```
-- Q3.3
-```sql
+# zookeeper中的信息
+```sh
+docker exec -it zk01 bash
+/apache-zookeeper-3.8.0-bin/bin/zkCli.sh
+
+[zk: localhost:2181(CONNECTED) 2] ls /clickhouse
+[task_queue]
+[zk: localhost:2181(CONNECTED) 3] ls /clickhouse/task_queue
+[ddl]
+[zk: localhost:2181(CONNECTED) 4] ls /clickhouse/task_queue/ddl/query-0000000000/active
+[]
+[zk: localhost:2181(CONNECTED) 5] ls /clickhouse/task_queue/ddl/query-0000000000/finished
+[10%2E206%2E13%2E5:9000, 10%2E206%2E13%2E6:9000, 10%2E206%2E13%2E7:9000]
+[zk: localhost:2181(CONNECTED) 6] get /clickhouse/task_queue/ddl/query-0000000000/finished/10%2E206%2E13%2E5:9000
+0
+
+[zk: localhost:2181(CONNECTED) 7] get /clickhouse/task_queue/ddl/query-0000000000
+version: 1
+query: CREATE TABLE ssb.lineorder UUID \'e8d1b074-b9c6-48ff-9fb3-9845b46cf045\' ON CLUSTER test_cluster_three_shards (`LOORDERKEY` UInt32, `LOLINENUMBER` UInt8, `LOCUSTKEY` UInt32, `LOPARTKEY` UInt32, `LOSUPPKEY` UInt32, `LOORDERDATE` Date, `LOORDERPRIORITY` LowCardinality(String), `LOSHIPPRIORITY` UInt8, `LOQUANTITY` UInt8, `LOEXTENDEDPRICE` UInt32, `LOORDTOTALPRICE` UInt32, `LODISCOUNT` UInt8, `LOREVENUE` UInt32, `LOSUPPLYCOST` UInt32, `LOTAX` UInt8, `LOCOMMITDATE` Date, `LOSHIPMODE` LowCardinality(String)) ENGINE = MergeTree PARTITION BY toYear(LOORDERDATE) ORDER BY (LOORDERDATE, LOORDERKEY)
+hosts: ['10%2E206%2E13%2E5:9000','10%2E206%2E13%2E6:9000','10%2E206%2E13%2E7:9000']
+initiator: aa3b704485e4:9000
+
+[zk: localhost:2181(CONNECTED) 8] 
 ```
+或者直接通过clickhouse中的系统表查看
+```sql
+SELECT * FROM system.zookeeper where path = '/clickhouse/task_queue/ddl'\G
+```
+DDL操作日志使用ZooKeeper的持久顺序型节点，每条指令的名称以query-为前缀，后面的序号递增，例如query-0000000000、query-0000000001等。在每条query-[seq]操作日志之下，还有两个状态节点：  
+（1）/query-[seq]/active：用于状态监控等用途，在任务的执行过程中，在该节点下会临时保存当前集群内状态为active的节点。  
+（2）/query-[seq]/finished：用于检查任务完成情况，在任务的执行过程中，每当集群内的某个host节点执行完毕之后，便会在该节点下写入记录。例如下面的语句。
