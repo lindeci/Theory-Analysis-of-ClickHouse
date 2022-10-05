@@ -20,8 +20,8 @@
       - [default_compression_codec.txt](#default_compression_codectxt)
       - [primary.idx](#primaryidx)
         - [结论](#结论)
-    - [{column}.mrk2](#columnmrk2)
-    - [{column}.bin](#columnbin)
+      - [{column}.mrk2](#columnmrk2)
+      - [{column}.bin](#columnbin)
 # MergeTree
 ## 主要特点
 **1.** 存储的数据按主键排序。  
@@ -932,7 +932,7 @@ select 302764/8192
 ```
 ##### 结论
 od -Ax -tx2 -w6  primary.idx查看结果是38行，但302764/8192只有37块，两者差1，因为最后一行有标记。
-### {column}.mrk2
+#### {column}.mrk2
 一个{column}.bin文件有1至多个数据压缩块组成，mark2数据标记文件格式比较固定，primary.idx文件中的每个索引在此文件中都有一个对应的Mark，有三列：
 - Offset in compressed file，8 Bytes，代表该标记指向的压缩数据块在bin文件中的偏移量。
 - Offset in decompressed block，8 Bytes，代表该标记指向的数据在解压数据块中的偏移量。
@@ -979,7 +979,7 @@ od -Ad -tu8 -w24  LOORDERKEY.mrk2
 0000888               752966                31408                    0
 0000912
 ```
-### {column}.bin
+#### {column}.bin
 - 第一行16个字节是该文件的checksum值
 - 第二行（以Id.bin为例）  
 1、第一个字节是0x82，是默认的LZ4算法  
