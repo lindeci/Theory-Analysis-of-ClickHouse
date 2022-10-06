@@ -22,6 +22,8 @@
         - [结论](#结论)
       - [{column}.mrk2](#columnmrk2)
       - [{column}.bin](#columnbin)
+      - [minmax_LOORDERDATE.idx](#minmax_loorderdateidx)
+      - [skp_idx_idx_1.idx 需要补充](#skp_idx_idx_1idx-需要补充)
 # MergeTree
 ## 主要特点
 **1.** 存储的数据按主键排序。  
@@ -1042,7 +1044,22 @@ hexdump -C LOORDERKEY.bin  | more
 000001d0  03 3a 04 00 2e 02 82 04  00 26 81 e4 04 00 a2 a2  |.:.......&......|
 000001e0  3d 12 00 86 67 12 00 a6  ba 04 00 26 c0 de 04 00  |=...g......&....|
 ```
-
+#### minmax_LOORDERDATE.idx
 ```sh
+hexdump -C minmax_LOORDERDATE.idx
+00000000  d1 20 3d 22                                       |. ="|
+00000004
 
+#验证上面的数值
+0x20d1=8401  
+0x223d=8765
+
+┌─addDays(toDate('1970-01-01'), 8401)─┐
+│                          1993-01-01 │
+└─────────────────────────────────────┘
+
+┌─addDays(toDate('1970-01-01'), 8765)─┐
+│                          1993-12-31 │
+└─────────────────────────────────────┘
 ```
+#### skp_idx_idx_1.idx 需要补充
