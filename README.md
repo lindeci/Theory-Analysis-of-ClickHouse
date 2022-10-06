@@ -24,6 +24,14 @@
       - [{column}.bin](#columnbin)
       - [minmax_LOORDERDATE.idx](#minmax_loorderdateidx)
       - [skp_idx_idx_1.idx 需要补充](#skp_idx_idx_1idx-需要补充)
+- [阅读开源代码的策略](#阅读开源代码的策略)
+  - [针对于ClickHouse提出问题](#针对于clickhouse提出问题)
+  - [阅读开源代码的步骤](#阅读开源代码的步骤)
+    - [阅读代码工具的选择](#阅读代码工具的选择)
+  - [开源库源码目录分解(22.1.3.7版本)](#开源库源码目录分解22137版本)
+    - [根目录](#根目录)
+    - [主程序入口](#主程序入口)
+    - [src目录说明](#src目录说明)
 # MergeTree
 ## 主要特点
 **1.** 存储的数据按主键排序。  
@@ -1063,3 +1071,128 @@ hexdump -C minmax_LOORDERDATE.idx
 └─────────────────────────────────────┘
 ```
 #### skp_idx_idx_1.idx 需要补充
+
+# 阅读开源代码的策略
+## 针对于ClickHouse提出问题
+首先看一下ClickHouse源码这么大体工作量， 理解开发一个数据库， 工作量在哪些主要的地方。大致分为下面几大问题：
+- 用户怎么下发SQL到服务器后台，后台是如何接收用户的SQL的？(会话管理器)
+- 用户下发过来的SQL是字符串，ClickHouse是如何转成自己的格式的？自己的格式又是什么？(SQL解析器)
+- 用户访问某些库、表等数据库对象是如何控制权限的？(数据库权限管理器)
+- 表、用户等数据库对象的元数据是如何处理的？(数据库元数据管理器)
+- 数据库的逻辑计划是如何生成的？逻辑计划都做了哪些优化方案？(SQL计划生成器)
+- 集群中的主节点是如何和从节点通信从而完成一个SQL的计算任务？(SQL调度器)
+- 数据库的物理计划是如何处理的？(SQL执行器)
+- 数据库的表的数据是如何存储的？存储在哪里？按照什么格式存储？(数据存储器)
+- 集群间节点通信采用什么方案？优化方式有哪些？如何保证传输的可靠性？(网络传输管理器)
+- 数据库支持哪些索引？索引的具体实现方式是什么？(数据库索引)
+- 数据库是如何控制并发的？是如何控制内存资源、CPU资源来避免木桶效应？(数据库资源管理)
+## 阅读开源代码的步骤
+通过上面的步骤，我们就要真正的阅读开源代码了，那么我们把阅读开源代码也分为几个步骤
+- 阅读代码工具的选择
+- 开源库源码目录分解
+- 网络资料的搜索
+- 摸清主线，避免过早陷入一些旁枝末节
+- 重视日志信息
+- 阅读源码过程中，同步绘制时序图，固化对流程的理解
+- 阅读源码过程中，不断解决之前提出的问题
+- 看开源库中的Issues问题列表，看看之前有哪些问题和解决方案是什么
+### 阅读代码工具的选择
+* [Code Browser (github.dev)](https://github.dev/ClickHouse/ClickHouse) with syntax highlight, powered by github.dev.  
+
+推荐使用Understand，这个工具可以很直观的生成调用关系图、类图、时序图。是个非常强大的静态分析工具。
+
+## 开源库源码目录分解(22.1.3.7版本)
+### 根目录
+```sh
+ClickHouse-master]# tree -L 1
+.
+├── AUTHORS
+├── base
+├── benchmark
+├── CHANGELOG.md
+├── cmake
+├── CMakeLists.txt
+├── CODE_OF_CONDUCT.md
+├── contrib
+├── CONTRIBUTING.md
+├── docker
+├── docs
+├── format_sources
+├── LICENSE
+├── packages
+├── PreLoad.cmake
+├── programs
+├── README.md
+├── rust
+├── SECURITY.md
+├── src
+├── tests
+├── utils
+└── website
+```
+### 主程序入口
+```sh
+tree -L 1 programs/
+programs/
+├── bash-completion
+├── benchmark                      //ClickHouse benchmark测试工具
+├── clickhouse-split-helper
+├── client                         //ClickHouse客户端命令行工具
+├── CMakeLists.txt
+├── compressor                     //ClickHouse数据压缩和解压的工具
+├── config_tools.h.in
+├── copier                         //ClickHouse数据迁移工具
+├── diagnostics
+├── disks
+├── embed_binary.S.in
+├── extract-from-config            //目录获取配置项工具
+├── format                         //ClickHouse数据格式化工具
+├── git-import
+├── install
+├── keeper
+├── keeper-converter
+├── library-bridge
+├── local                          //快速处理存储表的本地文件的工具
+├── main.cpp                       //程序入口
+├── obfuscator                     //表数据混淆工具
+├── odbc-bridge                    //odbc链接的工具
+├── self-extracting
+├── server                         //ClickHouse服务器相关的代码
+├── static-files-disk-uploader
+└── su
+```
+### src目录说明
+```sh
+tree -L 1 src/
+src/
+├── Access                      //权限控制
+├── AggregateFunctions          //聚合函数
+├── Backups
+├── Bridge
+├── BridgeHelper
+├── Client                      //客户端
+├── CMakeLists.txt
+├── Columns                     //内存中保存数据列
+├── Common
+├── Compression                 //数据压缩
+├── configure_config.cmake
+├── Coordination
+├── Core                        //核心模块,包括Block、Field、ColumnWithNameAndType、Row定义，SQL标准、DB引擎、DB设置等等
+├── Daemon
+├── Databases                   //数据库，包含数据库中的操作如表迭代器、库信息等等
+├── DataTypes                   //数据类型定义
+├── Dictionaries
+├── Disks                       //磁盘读写
+├── Formats
+├── Functions                   //普通函数
+├── Interpreters                //语句的解释和执行
+├── IO
+├── Loggers
+├── NOTICE
+├── Parsers                     //语句解析，构造AST，遍历AST元素
+├── Processors                  //query执行计划
+├── QueryPipeline
+├── Server                      //服务端
+├── Storages                    //存储管理，如分布式表数据分发、MergeTree分布式存储模块等等
+└── TableFunctions              //表函数的定义
+```

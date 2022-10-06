@@ -1,4 +1,13 @@
 
+- [泛化（Generalization）](#泛化generalization)
+- [实现（Realization）](#实现realization)
+- [关联（Association)](#关联association)
+- [聚合（Aggregation）和组合(Composition)](#聚合aggregation和组合composition)
+- [依赖(Dependency)](#依赖dependency)
+- [UML类图概念详解](#uml类图概念详解)
+  - [可见性（visibility）：](#可见性visibility)
+  - [参数的方向（parameter direction）](#参数的方向parameter-direction)
+  - [类成员（变量或者函数）的类型](#类成员变量或者函数的类型)
 # 泛化（Generalization）
 一种继承关系
 ```cpp
@@ -139,3 +148,22 @@ class CPerson
     void MoveFast(CCar &pCar);  
 };  
 ```
+
+# UML类图概念详解
+## 可见性（visibility）：
+- ‘+’ public
+- ‘-’ private
+- ‘#’ protected
+## 参数的方向（parameter direction）
+- ‘in’：用于输入的参数，get the value
+- ‘out’：用于输出的参数， set the value
+- ‘inout’：既可作为输入又可作为输出， get the value and set the value
+## 类成员（变量或者函数）的类型
+- 静态成员，下划线表示
+- 纯虚函数，斜体
+
+![image](Aggregation.png)
+![image](Association.png)
+![image](Composition.png)
+![image](Dependency.png)
+![image](Generalization.png)
