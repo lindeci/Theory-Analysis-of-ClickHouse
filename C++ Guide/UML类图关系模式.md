@@ -8,6 +8,7 @@
   - [可见性（visibility）：](#可见性visibility)
   - [参数的方向（parameter direction）](#参数的方向parameter-direction)
   - [类成员（变量或者函数）的类型](#类成员变量或者函数的类型)
+  - [箭头及指向](#箭头及指向)
 # 泛化（Generalization）
 一种继承关系
 ```cpp
@@ -161,9 +162,17 @@ class CPerson
 ## 类成员（变量或者函数）的类型
 - 静态成员，下划线表示
 - 纯虚函数，斜体
-
-![image](Aggregation.png)
-![image](Association.png)
-![image](Composition.png)
-![image](Dependency.png)
-![image](Generalization.png)
+- 
+## 箭头及指向
+- 聚合  
+![image](pic/Aggregation.png)
+- 关联  
+![image](pic/Association.png)  
+- 组合  
+![image](pic/Composition.png)  
+- 依赖  
+![image](pic/Dependency.png)  
+- 泛化  
+![image](pic/Generalization.png) 
+- 实现  
+![image](pic/Realization.png) 
