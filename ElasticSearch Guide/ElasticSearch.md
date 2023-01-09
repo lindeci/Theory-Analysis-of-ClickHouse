@@ -56,3 +56,11 @@ http://172.16.13.196:9200/?pretty
 关闭
 echo 'marvel.agent.enabled: false' >> ./config/elasticsearch.yml
 ```
+# 3、consistency
+## write consistency
+https://www.elastic.co/guide/en/elasticsearch/reference/7.17/docs-index_.html#index-wait-for-active-shards
+
+https://www.elastic.co/guide/en/elasticsearch/reference/5.5/breaking_50_java_api_changes.html#_writeconsistencylevel_removed_on_write_requests
+
+## read model
+https://www.elastic.co/guide/en/elasticsearch/reference/current/docs-replication.html#_basic_read_model
